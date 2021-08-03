@@ -1,4 +1,4 @@
-package middleware
+package auth
 
 import (
 	"log"
@@ -8,24 +8,24 @@ import (
 )
 
 func (s *Server) authMiddleware(h http.Handler) http.Handler {
-	return authboss.middleware(s.auth, true, false, false)(h)
+	return authboss.Middleware(s.auth, true, false, false)(h)
 }
 
 func (s *Server) redirectIfLoggedIn(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		pid, err := s.auth.CurrenUserID(r)
+		pid, err := s.auth.CurrentUserID(r)
 		checkError(err)
 
-		mountPath := s.auth.Config.Path.Mount
+		mountPath := s.auth.Config.Paths.Mount
 		switch r.URL.Path {
 		case mountPath + "/login", mountPath + "/register":
 			if pid != " " {
 				ro := authboss.RedirectOptions{
-					Code:          http.StatusTemporaryRedirect,
-					RedirectPath:  s.auth.Paths.AuthLoginOK,
-					FollowerParam: true,
+					Code:             http.StatusTemporaryRedirect,
+					RedirectPath:     s.auth.Paths.AuthLoginOK,
+					FollowRedirParam: true,
 				}
-				if err := s.auth.Core.Redirector(w, r, ro); err != nil {
+				if err := s.auth.Core.Redirector.Redirect(w, r, ro); err != nil {
 					checkError(err)
 				}
 			}

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/gorilla/mux"
+	"github.com/joho/godotenv"
 	"github.com/midepeter/authboss/auth"
 	"github.com/midepeter/authboss/model"
 	"github.com/midepeter/authboss/storer"
@@ -13,19 +15,21 @@ import (
 //This is simple library to implement the use of shim
 
 func (s *Server) LoadRoutes() {
-	s.router.Use(s.auth.LoadClientMiddleware)
-	s.router.Use(s.redirectIfLoggedIn)
 
-	s.router.Mount("/auth", http.StripPrefix("/auth", s.auth.config.Core.Router))
+	router := mux.NewRouter()
+	router.Use(s.auth.LoadClientMiddleware)
+	router.Use(s.redirectIfLoggedIn)
 
-	log.Println(http.ListenAndServe(":80", s.router))
+	router.Mount("/auth", http.StripPrefix("/auth", s.auth.config.Core.Router))
+
+	log.Println(http.ListenAndServe(":80", router))
 
 }
 
 func main() {
 
 	//Initializing the authboss setup function
-	ab := auth.SetUpAuthboss()
+	auth.SetUpAuthboss()
 
 	env := os.Getenv("ENV")
 	if env == "" {
@@ -56,4 +60,5 @@ func main() {
 	if err != nil {
 		log.Fatal("failed to setup tables", err)
 	}
+	log.Println("Auth is running successfully")
 }

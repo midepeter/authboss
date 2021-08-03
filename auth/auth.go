@@ -4,27 +4,23 @@ package auth
 import (
 	"log"
 
-
-	mux "github.com/gorilla/mux"
-	"gorm.io/gorm"
-	abclientstate "github.com/volatiletech/authboss-clientstate"
+	storer "github.com/midepeter/authboss/storer"
 	authboss "github.com/volatiletech/authboss/v3"
 	_ "github.com/volatiletech/authboss/v3/auth"
+	"github.com/volatiletech/authboss/v3/defaults"
 	_ "github.com/volatiletech/authboss/v3/logout"
 	_ "github.com/volatiletech/authboss/v3/register"
-	"github.com/volatiletech/authboss/v3/defaults"
+	"gorm.io/gorm"
 )
 
 type Server struct {
-	router *mux.NewRouter
-	DB     *gorm.DB
-	auth   *authboss.Authboss
+	DB   *gorm.DB
+	auth *authboss.Authboss
 }
 
-
 var (
-	ab           = authboss.New()
-	database     = gorm.DB
+	ab       = authboss.New()
+	database = storer.New()
 )
 
 func SetUpAuthboss() {
@@ -37,7 +33,7 @@ func SetUpAuthboss() {
 
 	defaults.SetCore(&ab.Config, false, false)
 
-	if err := ab.init(); err != nil {
+	if err := ab.Init(); err != nil {
 		log.Fatalf("Error while initialising authboss -> %s", err)
 	}
 	//Mounting the router to a path( this should be the same as the path above)

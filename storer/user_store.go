@@ -1,7 +1,6 @@
-package auth
+package storer
 
 import (
-	"github.com/midepeter/authboss/model"
 	authboss "github.com/volatiletech/authboss/v3"
 	"gorm.io/gorm"
 )
@@ -17,19 +16,17 @@ func NewUserStore(db *gorm.DB) *UserStore {
 	}
 }
 
-func (u *UserStore) Load(key string) (authboss.User, error) {
-	var user *model.User
-	activeUser := u.db.Where("id = ?", key).Find(&user)
-	return activeUser, nil
+func (u *UserStore) Load(key string) (*authboss.User, error) {
+	return &User, nil
 }
 
 func (u *UserStore) Save(user authboss.User) error {
 	return nil
 }
 
-func New(user authboss.User) *authboss.User {
-	return user
+func NewUser(user authboss.User) *authboss.User {
+	return nil
 }
 func (u *UserStore) Create(user authboss.User) error {
-
+	return nil
 }
