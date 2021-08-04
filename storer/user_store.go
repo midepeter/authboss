@@ -1,6 +1,10 @@
 package storer
 
 import (
+	"context"
+	"log"
+
+	userd "github.com/midepeter/authboss/user"
 	authboss "github.com/volatiletech/authboss/v3"
 	"gorm.io/gorm"
 )
@@ -16,17 +20,28 @@ func NewUserStore(db *gorm.DB) *UserStore {
 	}
 }
 
-func (u *UserStore) Load(key string) (*authboss.User, error) {
-	return &User, nil
+func (u *UserStore) Load(_ context.Context, key string) (*authboss.User, error) {
+	return nil, nil
 }
 
-func (u *UserStore) Save(user authboss.User) error {
+func (u *UserStore) Save(_ context.Context, user authboss.User) error {
+	m := user.(*userd.UserValues)
+
+	u.db.Save(&m)
+
 	return nil
 }
 
-func NewUser(user authboss.User) *authboss.User {
-	return nil
+func NewUser() (u authboss.User) {
+	return userd.NewUserValues()
 }
+
 func (u *UserStore) Create(user authboss.User) error {
+	m := user.(*userd.UserValues)
+
+	if err := u.db.Create(&m).Error; err != nil {
+		return err
+	}
+	log.Println("The user was created")
 	return nil
 }

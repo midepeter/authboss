@@ -5,7 +5,7 @@ import (
 )
 
 type UserValues struct {
-	Model     *model.User
+	Model *model.User
 	arbitrary map[string]string
 }
 
@@ -17,9 +17,9 @@ func NewUserValues(user ...*model.User) *UserValues {
 	}
 
 	arbitrary := make(map[string]string)
-
-	return &UserValues{
-		Model:     modelPtr,
+ 
+	return &UserValues {
+		Model: modelPtr,
 		arbitrary: arbitrary,
 	}
 }
@@ -31,3 +31,4 @@ func (u UserValues) GetPID() (pid string) {
 func (u UserValues) PutPID(pid string) {
 	u.Model.Email = pid
 }
+

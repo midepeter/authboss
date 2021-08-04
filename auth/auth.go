@@ -4,7 +4,8 @@ package auth
 import (
 	"log"
 
-	storer "github.com/midepeter/authboss/storer"
+	"github.com/midepeter/authboss/storer"
+	abrenderer "github.com/volatiletech/authboss-renderer"
 	authboss "github.com/volatiletech/authboss/v3"
 	_ "github.com/volatiletech/authboss/v3/auth"
 	"github.com/volatiletech/authboss/v3/defaults"
@@ -13,28 +14,29 @@ import (
 	"gorm.io/gorm"
 )
 
-type Server struct {
-	DB   *gorm.DB
-	auth *authboss.Authboss
-}
-
 var (
-	ab       = authboss.New()
-	database = storer.New()
+	db *gorm.DB
 )
 
 func SetUpAuthboss() {
-	log.Println("Setting up authentication.....")
+	log.Println("Setting up authentication")
+
+	ab := authboss.New()
 
 	ab.Config.Paths.Mount = "/auth"
 	ab.Config.Paths.RootURL = "http://localhost:3000"
 
-	ab.Config.Storage.Server = database
+	ab.Config.Core.ViewRenderer = abrenderer.NewHTML("/auth", "ab_views")
+
+	ab.Config.Storage.Server = storer.NewpostgresStore(db)
+	ab.Config.Storage.SessionState = nil
 
 	defaults.SetCore(&ab.Config, false, false)
 
+	//Initializing the authboss package
 	if err := ab.Init(); err != nil {
-		log.Fatalf("Error while initialising authboss -> %s", err)
+		panic(err)
 	}
-	//Mounting the router to a path( this should be the same as the path above)
+
+	log.Println("Authentication setup finished")
 }
